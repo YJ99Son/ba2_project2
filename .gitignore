@@ -1,6 +1,7 @@
 # Ignore instruction files
 *.pdf
 *.md
+!README.md
 
 # Ignore original large dataset
 listings.csv
