@@ -53,3 +53,15 @@ env/
 *.tmp
 *.temp
 *.log
+
+# ===========================
+# Presentation (keep locally)
+# ===========================
+presentation/convert_to_pptx*.py
+presentation/update_slide_numbers.py
+presentation/presentation_ko*
+presentation/presentation_en.pptx
+presentation/presentation_en_v2.html
+presentation/presentation_swiss.html
+presentation/presentation_script*.md
+presentation/vercel_deploy/
