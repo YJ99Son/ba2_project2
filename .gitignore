@@ -1,22 +1,55 @@
-# Ignore instruction files
+# ===========================
+# Instruction/Assignment Files
+# ===========================
 *.pdf
-*.md
+02.*.md
 !README.md
 
-# Ignore original large dataset
+# ===========================
+# Large Data Files
+# ===========================
 listings.csv
+*.zip
 
-# Ignore system files
+# ===========================
+# System Files
+# ===========================
 .DS_Store
+Thumbs.db
 
-# Ignore python cache
+# ===========================
+# Python Cache
+# ===========================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
 
-# Ignore jupyter checkpoints
+# ===========================
+# Jupyter Notebook
+# ===========================
 .ipynb_checkpoints/
+*-checkpoint.ipynb
 
-# Ignore virtual environments
+# ===========================
+# Virtual Environment
+# ===========================
 venv/
 env/
 .env
+.venv/
+
+# ===========================
+# IDE Settings
+# ===========================
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ===========================
+# Temporary Files
+# ===========================
+*.tmp
+*.temp
+*.log
