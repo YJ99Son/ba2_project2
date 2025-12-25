@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airbnb Superhost Prediction - 한국어</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-100: #f7f7f7;
+            --gray-200: #ebebeb;
+            --gray-300: #dddddd;
+            --gray-500: #717171;
+            --gray-700: #484848;
+            --airbnb-red: #FF385C;
+            --airbnb-dark: #222222;
+            --accent: #FF385C;
+            --slide-width: 1920px;
+            --slide-height: 1080px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: var(--black);
+            line-height: 1.4;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 16:9 Slide Container */
+        .slide-wrapper {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            background: var(--white);
+        }
+
+        .slide-wrapper.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: inherit;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        }
+
+        .slide-dark {
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .slide-accent {
+            background: var(--airbnb-red);
+            color: var(--white);
+        }
+
+        .slide-gray {
+            background: var(--gray-100);
+        }
+
+        /* Typography */
+        .slide-number {
+            position: absolute;
+            top: 40px;
+            right: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            color: var(--gray-500);
+        }
+
+        .slide-dark .slide-number {
+            color: var(--gray-500);
+        }
+
+        h1 {
+            font-size: 72px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 0.95;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 32px;
+        }
+
+        h3 {
+            font-size: 36px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 24px;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--gray-700);
+            max-width: 800px;
+        }
+
+        .slide-dark .subtitle {
+            color: var(--gray-300);
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            margin-bottom: 16px;
+        }
+
+        .highlight {
+            color: var(--airbnb-red);
+        }
+
+        /* Grid System */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 48px;
+            align-items: center;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            padding: 32px;
+        }
+
+        .card-dark {
+            background: var(--gray-700);
+            border: none;
+            color: var(--white);
+        }
+
+        .card-number {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            padding: 24px;
+            background: var(--gray-100);
+            border-left: 4px solid var(--black);
+        }
+
+        .metric-card.best {
+            border-left-color: var(--airbnb-red);
+            background: #fff5f7;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* Bar Chart */
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bar-label {
+            width: 140px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 36px;
+            background: var(--gray-200);
+        }
+
+        .bar {
+            height: 100%;
+            background: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .bar.accent {
+            background: var(--airbnb-red);
+        }
+
+        /* Process Flow */
+        .process-flow {
+            display: flex;
+            gap: 0;
+            margin: 32px 0;
+        }
+
+        .process-step {
+            flex: 1;
+            padding: 28px;
+            background: var(--gray-100);
+            position: relative;
+        }
+
+        .process-step::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 28px;
+            font-weight: 300;
+            color: var(--gray-500);
+            z-index: 1;
+        }
+
+        .process-step:last-child::after {
+            display: none;
+        }
+
+        .process-step:last-child {
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .step-number {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--gray-300);
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .process-step:last-child .step-number {
+            color: var(--gray-700);
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .step-desc {
+            font-size: 12px;
+            color: var(--gray-500);
+            line-height: 1.4;
+        }
+
+        .process-step:last-child .step-desc {
+            color: var(--gray-300);
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gray-500);
+            padding: 14px 0;
+            border-bottom: 2px solid var(--black);
+        }
+
+        .data-table td {
+            padding: 16px 0;
+            font-size: 15px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .data-table .model-name {
+            font-weight: 600;
+        }
+
+        .data-table .score {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .data-table tr.best {
+            background: #fff5f7;
+        }
+
+        /* Comparison */
+        .comparison-box {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            align-items: stretch;
+            margin: 24px 0;
+        }
+
+        .compare-side {
+            padding: 32px;
+        }
+
+        .compare-left {
+            background: var(--gray-100);
+            border-left: 4px solid var(--gray-500);
+        }
+
+        .compare-right {
+            background: #fff5f7;
+            border-right: 4px solid var(--airbnb-red);
+        }
+
+        .compare-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gray-500);
+            background: var(--white);
+        }
+
+        .compare-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 14px;
+            color: var(--gray-500);
+        }
+
+        .compare-right .compare-title {
+            color: var(--airbnb-red);
+        }
+
+        .compare-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .compare-item {
+            font-size: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .compare-item::before {
+            content: '•';
+            color: var(--gray-500);
+        }
+
+        .compare-right .compare-item::before {
+            color: var(--airbnb-red);
+        }
+
+        /* Case Study */
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .case-card {
+            padding: 20px;
+            background: var(--gray-100);
+            border-left: 3px solid var(--gray-300);
+        }
+
+        .case-card.mismatch {
+            border-left-color: var(--airbnb-red);
+            background: #fff5f7;
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .case-id {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-500);
+        }
+
+        .case-status {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            background: var(--gray-300);
+        }
+
+        .case-card.mismatch .case-status {
+            background: var(--airbnb-red);
+            color: var(--white);
+        }
+
+        .case-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .case-metric {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .case-metric-label {
+            font-size: 11px;
+            color: var(--gray-500);
+        }
+
+        .case-metric-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* Insight Box */
+        .insight-box {
+            background: var(--gray-100);
+            padding: 32px;
+            border-left: 4px solid var(--airbnb-red);
+        }
+
+        .insight-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--airbnb-red);
+            margin-bottom: 12px;
+        }
+
+        .insight-text {
+            font-size: 22px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        /* Feature List */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feature-rank {
+            width: 28px;
+            height: 28px;
+            background: var(--black);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .feature-name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .feature-bar-container {
+            width: 160px;
+            height: 6px;
+            background: var(--gray-200);
+        }
+
+        .feature-bar {
+            height: 100%;
+            background: var(--airbnb-red);
+        }
+
+        /* Footer */
+        .slide-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 80px;
+            right: 80px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        /* Navigation */
+        .nav-dots {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-dot:hover,
+        .nav-dot.active {
+            background: var(--white);
+            transform: scale(1.5);
+        }
+
+        /* Print / Export styles */
+        @media print {
+            .slide-wrapper {
+                page-break-after: always;
+                min-height: auto;
+            }
+            .nav-dots {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav-dots">
+    <button class="nav-dot active" onclick="scrollToSlide(0)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(1)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(2)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(3)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(4)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(5)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(6)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(7)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(8)"></button>
+    <button class="nav-dot" onclick="scrollToSlide(9)"></button>
+</nav>
+
+<!-- Slide 1: Title -->
+<div class="slide-wrapper" id="slide-0">
+    <section class="slide slide-dark">
+        <span class="slide-number">01 / 11</span>
+        <div>
+            <p class="label">Business Analytics II — Project II</p>
+            <h1>Airbnb<br><span class="highlight">Superhost</span><br>Prediction</h1>
+            <p class="subtitle" style="color: var(--gray-300);">
+                머신러닝을 활용한 에어비앤비 슈퍼호스트 예측 모델 구축
+            </p>
+        </div>
+        <div class="slide-footer" style="color: var(--gray-500);">
+            <span>2020120083 손영진</span>
+            <span>December 2024</span>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 2: Problem Definition -->
+<div class="slide-wrapper" id="slide-1">
+    <section class="slide">
+        <span class="slide-number">02 / 11</span>
+        <div>
+            <p class="label">Problem Definition</p>
+            <h2>왜 슈퍼호스트<br>예측이 중요한가?</h2>
+        </div>
+        
+        <div class="grid-3" style="margin-top: 40px;">
+            <div class="card">
+                <div class="card-number highlight">22%</div>
+                <div class="card-title">수익 증가</div>
+                <div class="card-desc">슈퍼호스트는 일반 호스트 대비 약 22% 더 높은 수익을 창출</div>
+            </div>
+            <div class="card">
+                <div class="card-number">60%</div>
+                <div class="card-title">예약률 상승</div>
+                <div class="card-desc">슈퍼호스트 배지는 게스트 신뢰도를 높여 예약 전환율 향상</div>
+            </div>
+            <div class="card">
+                <div class="card-number">$100</div>
+                <div class="card-title">여행 쿠폰</div>
+                <div class="card-desc">Airbnb에서 슈퍼호스트에게 제공하는 연간 여행 쿠폰 혜택</div>
+            </div>
+        </div>
+
+        <div class="insight-box" style="margin-top: 40px;">
+            <div class="insight-title">Core Question</div>
+            <div class="insight-text">
+                어떤 호스트가 슈퍼호스트가 될 <strong>가능성이 높은지</strong> 사전에 예측할 수 있다면,<br>
+                호스트 코칭과 플랫폼 운영 전략에 활용할 수 있지 않을까?
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 3: Data Overview -->
+<div class="slide-wrapper" id="slide-2">
+    <section class="slide slide-gray">
+        <span class="slide-number">03 / 11</span>
+        <div>
+            <p class="label">Data Overview</p>
+            <h2>데이터셋 구조</h2>
+        </div>
+        
+        <div class="grid-2" style="margin-top: 40px;">
+            <div>
+                <div class="grid-2" style="gap: 20px;">
+                    <div class="metric-card">
+                        <div class="metric-label">Training Samples</div>
+                        <div class="metric-value">25,386</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Test Samples</div>
+                        <div class="metric-value">130</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Original Features</div>
+                        <div class="metric-value">54</div>
+                    </div>
+                    <div class="metric-card best">
+                        <div class="metric-label">Final Features</div>
+                        <div class="metric-value">444</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 style="font-size: 22px; margin-bottom: 20px;">클래스 분포</h3>
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <span class="bar-label">Not Superhost</span>
+                        <div class="bar-container">
+                            <div class="bar" style="width: 64%;">64%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">Superhost</span>
+                        <div class="bar-container">
+                            <div class="bar accent" style="width: 36%;">36%</div>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: var(--gray-500); margin-top: 16px;">
+                    * 클래스 불균형 해결을 위해 업샘플링 적용
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 4: Preprocessing -->
+<div class="slide-wrapper" id="slide-3">
+    <section class="slide">
+        <span class="slide-number">04 / 11</span>
+        <div>
+            <p class="label">Preprocessing Pipeline</p>
+            <h2>데이터 전처리 과정</h2>
+        </div>
+
+        <div class="process-flow">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-title">Missing Values</div>
+                <div class="step-desc">수치형: Median<br>범주형: Mode</div>
+            </div>
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-title">Feature Engineering</div>
+                <div class="step-desc">날짜 → days_since<br>가격/% → 수치형</div>
+            </div>
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-title">Text Embedding</div>
+                <div class="step-desc">Amenities → 384차원<br>SentenceTransformer</div>
+            </div>
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-title">Encoding & Scaling</div>
+                <div class="step-desc">One-Hot + StandardScaler<br>→ 444 Features</div>
+            </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 32px; gap: 32px;">
+            <div class="card" style="padding: 24px;">
+                <h3 style="font-size: 16px; margin-bottom: 12px;">Property Type Clustering</h3>
+                <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 12px;">
+                    76개 → 6개 그룹으로 임베딩 기반 클러스터링
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="padding: 4px 10px; background: var(--gray-100); font-size: 12px;">Entire Place</span>
+                    <span style="padding: 4px 10px; background: var(--gray-100); font-size: 12px;">Private Room</span>
+                    <span style="padding: 4px 10px; background: var(--gray-100); font-size: 12px;">Shared Room</span>
+                    <span style="padding: 4px 10px; background: var(--gray-100); font-size: 12px;">Hotel/Hostel</span>
+                    <span style="padding: 4px 10px; background: var(--gray-100); font-size: 12px;">Eco/Alternative</span>
+                    <span style="padding: 4px 10px; background: var(--gray-100); font-size: 12px;">Unique Outdoor</span>
+                </div>
+            </div>
+            <div class="card" style="padding: 24px;">
+                <h3 style="font-size: 16px; margin-bottom: 12px;">Class Balancing</h3>
+                <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 12px;">
+                    Upsampling으로 클래스 균형 맞춤
+                </p>
+                <div style="display: flex; gap: 24px; align-items: center;">
+                    <div>
+                        <div style="font-size: 11px; color: var(--gray-500);">Before</div>
+                        <div style="font-size: 20px; font-weight: 700;">13,731 : 6,577</div>
+                    </div>
+                    <div style="font-size: 20px; color: var(--gray-300);">→</div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--gray-500);">After</div>
+                        <div style="font-size: 20px; font-weight: 700;">13,731 : 13,731</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 5: Amenity Embedding (NEW) -->
+<div class="slide-wrapper" id="slide-amenity">
+    <section class="slide">
+        <span class="slide-number">05 / 11</span>
+        
+        <!-- Header -->
+        <div style="margin-bottom: 30px;">
+            <p class="label">Text Embedding</p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <h2 style="font-size: 48px; margin-bottom: 0;">어메니티 임베딩</h2>
+                <div style="text-align: right; font-size: 14px; color: var(--gray-500); background: var(--gray-100); padding: 8px 16px; border-radius: 6px;">
+                    Model: <strong>SentenceTransformer</strong> (all-MiniLM-L6-v2)
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; height: 100%;">
+            <!-- Left Column -->
+            <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                
+                <!-- Description -->
+                <div>
+                    <p style="font-size: 16px; line-height: 1.6; color: var(--gray-700); margin-bottom: 20px; word-break: keep-all;">
+                        원본 데이터에는 <strong>6,372개의 고유한 편의시설 용어</strong>가 존재합니다. 이를 전통적인 One-Hot 인코딩으로 처리하면 데이터가 매우 희소해져 의미적 연결성을 잃게 됩니다.
+                    </p>
+                    <p style="font-size: 16px; line-height: 1.6; color: var(--gray-700); word-break: keep-all;">
+                        우리는 이 용어들을 <strong>384차원 밀집 벡터</strong>로 임베딩하여, <em>'Wifi'와 'Internet'</em> 같은 단어 간의 의미적 유사성을 포착했습니다.
+                    </p>
+                </div>
+
+                <!-- Process Flow -->
+                <div style="background: var(--gray-100); padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 6px;">📝</div>
+                        <div style="font-size: 12px; font-weight: 600;">6,372 용어</div>
+                    </div>
+                    <div style="color: var(--gray-400);">→</div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 6px;">🤖</div>
+                        <div style="font-size: 12px; font-weight: 600;">Transformer</div>
+                    </div>
+                    <div style="color: var(--gray-400);">→</div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 6px;">📊</div>
+                        <div style="font-size: 12px; font-weight: 600;">384차원</div>
+                    </div>
+                </div>
+                
+                <!-- Categories -->
+                <div>
+                    <p style="font-size: 12px; font-weight: 700; color: var(--gray-500); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">의미론적 클러스터 (Semantic Clusters)</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span style="padding: 6px 12px; background: #FF385C15; color: #FF385C; font-size: 12px; font-weight: 600; border-radius: 20px;">엔터테인먼트</span>
+                        <span style="padding: 6px 12px; background: #00A69915; color: #00A699; font-size: 12px; font-weight: 600; border-radius: 20px;">주방/식사</span>
+                        <span style="padding: 6px 12px; background: #FC642D15; color: #FC642D; font-size: 12px; font-weight: 600; border-radius: 20px;">욕실/침실</span>
+                        <span style="padding: 6px 12px; background: #48484815; color: #484848; font-size: 12px; font-weight: 600; border-radius: 20px;">냉난방</span>
+                        <span style="padding: 6px 12px; background: #76767615; color: #767676; font-size: 12px; font-weight: 600; border-radius: 20px;">안전</span>
+                        <span style="padding: 6px 12px; background: #00848915; color: #008489; font-size: 12px; font-weight: 600; border-radius: 20px;">야외/시설</span>
+                        <span style="padding: 6px 12px; background: #91466915; color: #914669; font-size: 12px; font-weight: 600; border-radius: 20px;">접근성</span>
+                    </div>
+                </div>
+
+                <!-- Key Benefit -->
+                <div style="padding: 16px 20px; background: #fff5f7; border-left: 4px solid var(--airbnb-red); border-radius: 0 8px 8px 0;">
+                    <p style="font-size: 14px; line-height: 1.5; color: var(--airbnb-red); font-weight: 500; word-break: keep-all;">
+                        "단순한 유무(Presence)를 넘어, 모델이 편의시설의 <strong>품질과 완결성</strong>을 이해하도록 돕습니다."
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div style="height: 100%; display: flex; flex-direction: column;">
+                <div style="flex: 1; border: 1px solid var(--gray-200); overflow: hidden; border-radius: 12px; background: var(--gray-100); position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.05);">
+                    <iframe src="amenity_map.html" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px; padding: 0 4px;">
+                    <p style="font-size: 12px; font-weight: 600; color: var(--gray-700);">Interactive t-SNE Visualization</p>
+                    <p style="font-size: 12px; color: var(--gray-500);">마우스를 올려 상세 정보를 확인하세요</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 6: Model Comparison -->
+<div class="slide-wrapper" id="slide-4">
+    <section class="slide slide-dark">
+        <span class="slide-number">06 / 11</span>
+        <div>
+            <p class="label" style="color: var(--gray-500);">Model Performance</p>
+            <h2>모델 성능 비교</h2>
+        </div>
+
+        <table class="data-table" style="margin-top: 24px; color: var(--white);">
+            <thead>
+                <tr>
+                    <th style="color: var(--gray-500); border-bottom-color: var(--gray-500);">Model</th>
+                    <th style="color: var(--gray-500); border-bottom-color: var(--gray-500);">Accuracy</th>
+                    <th style="color: var(--gray-500); border-bottom-color: var(--gray-500);">Recall</th>
+                    <th style="color: var(--gray-500); border-bottom-color: var(--gray-500);">F1 Score</th>
+                    <th style="color: var(--gray-500); border-bottom-color: var(--gray-500);">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="best" style="background: rgba(255, 56, 92, 0.2);">
+                    <td class="model-name">Random Forest</td>
+                    <td class="score highlight">93.0%</td>
+                    <td class="score">67.5%</td>
+                    <td class="score">73.6%</td>
+                    <td style="font-size: 12px;">✓ 선택됨</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--gray-700);">
+                    <td class="model-name">Decision Tree</td>
+                    <td class="score">89.4%</td>
+                    <td class="score">66.2%</td>
+                    <td class="score">67.8%</td>
+                    <td></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--gray-700);">
+                    <td class="model-name">PyTorch MLP</td>
+                    <td class="score">83.5%</td>
+                    <td class="score highlight">82.7%</td>
+                    <td class="score highlight">76.4%</td>
+                    <td style="font-size: 12px;">최고 F1</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--gray-700);">
+                    <td class="model-name">KNN</td>
+                    <td class="score">82.9%</td>
+                    <td class="score">67.9%</td>
+                    <td class="score">60.8%</td>
+                    <td></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--gray-700);">
+                    <td class="model-name">Logistic Regression</td>
+                    <td class="score">80.2%</td>
+                    <td class="score">82.5%</td>
+                    <td class="score">72.5%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="model-name">Naive Bayes</td>
+                    <td class="score">72.1%</td>
+                    <td class="score highlight">87.1%</td>
+                    <td class="score">58.2%</td>
+                    <td style="font-size: 12px;">최고 Recall</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<!-- Slide 7: Model Selection -->
+<div class="slide-wrapper" id="slide-5">
+    <section class="slide">
+        <span class="slide-number">07 / 11</span>
+        <div>
+            <p class="label">Model Selection</p>
+            <h2>왜 <span class="highlight">Random Forest</span>를<br>선택했는가?</h2>
+        </div>
+
+        <div class="grid-2" style="margin-top: 32px;">
+            <div>
+                <div class="card-dark" style="padding: 32px;">
+                    <div style="font-size: 13px; color: var(--gray-300); margin-bottom: 6px;">Selected Model</div>
+                    <div style="font-size: 32px; font-weight: 800; margin-bottom: 20px;">Random Forest</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                        <div>
+                            <div style="font-size: 11px; color: var(--gray-500);">Accuracy</div>
+                            <div style="font-size: 24px; font-weight: 800;">93.0%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: var(--gray-500);">Recall</div>
+                            <div style="font-size: 24px; font-weight: 800;">67.5%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: var(--gray-500);">F1</div>
+                            <div style="font-size: 24px; font-weight: 800;">73.6%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; padding: 20px; border-left: 4px solid var(--airbnb-red);">
+                    <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 10px;">선택 근거</h4>
+                    <ul style="font-size: 14px; line-height: 1.8; color: var(--gray-700); padding-left: 18px;">
+                        <li><strong>높은 정확도</strong> — 전체 예측의 신뢰성 확보</li>
+                        <li><strong>Feature Importance</strong> — 해석 가능한 모델</li>
+                        <li><strong>안정성</strong> — 과적합 위험 낮음</li>
+                        <li><strong>비즈니스 관점</strong> — 잘못된 Superhost 부여 방지</li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <h3 style="font-size: 18px; margin-bottom: 20px;">Top 8 Feature Importance</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-rank">1</div>
+                        <div class="feature-name">host_listings_count</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 100%;"></div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-rank">2</div>
+                        <div class="feature-name">review_scores_rating</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 92%;"></div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-rank">3</div>
+                        <div class="feature-name">number_of_reviews_ltm</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 85%;"></div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-rank">4</div>
+                        <div class="feature-name">host_response_rate</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 78%;"></div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-rank">5</div>
+                        <div class="feature-name">review_scores_value</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 70%;"></div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-rank">6</div>
+                        <div class="feature-name">review_scores_cleanliness</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 65%;"></div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-rank">7</div>
+                        <div class="feature-name">host_total_listings_count</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 58%;"></div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-rank">8</div>
+                        <div class="feature-name">days_since_first_review</div>
+                        <div class="feature-bar-container"><div class="feature-bar" style="width: 52%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 8: Airbnb Official Criteria -->
+<div class="slide-wrapper" id="slide-6">
+    <section class="slide slide-accent">
+        <span class="slide-number" style="color: rgba(255,255,255,0.5);">08 / 11</span>
+        <div>
+            <p class="label" style="color: rgba(255,255,255,0.7);">Official Criteria</p>
+            <h2 style="font-size: 56px;">Airbnb 공식<br>슈퍼호스트 기준</h2>
+        </div>
+
+        <div class="grid-4" style="margin-top: 40px;">
+            <div style="padding: 28px; background: rgba(255,255,255,0.15);">
+                <div style="font-size: 44px; font-weight: 800; margin-bottom: 10px;">10+</div>
+                <div style="font-size: 13px; opacity: 0.9;">연간 예약 완료<br>또는 100박 이상</div>
+            </div>
+            <div style="padding: 28px; background: rgba(255,255,255,0.15);">
+                <div style="font-size: 44px; font-weight: 800; margin-bottom: 10px;">90%</div>
+                <div style="font-size: 13px; opacity: 0.9;">응답률<br>Response Rate</div>
+            </div>
+            <div style="padding: 28px; background: rgba(255,255,255,0.15);">
+                <div style="font-size: 44px; font-weight: 800; margin-bottom: 10px;">&lt;1%</div>
+                <div style="font-size: 13px; opacity: 0.9;">취소율<br>Cancellation Rate</div>
+            </div>
+            <div style="padding: 28px; background: rgba(255,255,255,0.15);">
+                <div style="font-size: 44px; font-weight: 800; margin-bottom: 10px;">4.8</div>
+                <div style="font-size: 13px; opacity: 0.9;">전체 평점<br>Overall Rating</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: rgba(0,0,0,0.2); display: flex; align-items: center; gap: 20px;">
+            <span style="font-size: 28px;">🕒</span>
+            <div>
+                <div style="font-size: 16px; font-weight: 700;">매 분기 자동 평가</div>
+                <div style="font-size: 13px; opacity: 0.8;">1월, 4월, 7월, 10월 — 최근 12개월 기준으로 자격 심사</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 9: Model vs Rule Comparison (Swiss Style Redesign) -->
+<div class="slide-wrapper" id="slide-7">
+    <section class="slide">
+        <span class="slide-number">09 / 11</span>
+        
+        <!-- Big Typography Header -->
+        <div style="margin-bottom: 48px;">
+            <p class="label">비교 분석</p>
+            <h2 style="font-size: 64px; line-height: 1.0;">모델이 학습한<br><span class="highlight">패턴</span></h2>
+        </div>
+
+        <!-- Main Comparison: Two Columns with Clear Visual Hierarchy -->
+        <div style="display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; align-items: stretch;">
+            
+            <!-- Left: Official Criteria -->
+            <div style="background: var(--gray-100); padding: 40px;">
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 24px;">Airbnb 공식 기준</div>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; align-items: baseline; gap: 12px;">
+                        <span style="font-size: 48px; font-weight: 800; line-height: 1;">90%</span>
+                        <span style="font-size: 14px; color: var(--gray-500);">응답률</span>
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 12px;">
+                        <span style="font-size: 48px; font-weight: 800; line-height: 1;">4.8</span>
+                        <span style="font-size: 14px; color: var(--gray-500);">평점</span>
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 12px;">
+                        <span style="font-size: 48px; font-weight: 800; line-height: 1;">10+</span>
+                        <span style="font-size: 14px; color: var(--gray-500);">연간 리뷰</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: VS -->
+            <div style="background: var(--black); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; letter-spacing: 0.1em;">VS</div>
+
+            <!-- Right: ML Model Features -->
+            <div style="background: var(--black); color: var(--white); padding: 40px;">
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 24px;">ML 모델 Top Features</div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="width: 28px; height: 28px; background: var(--airbnb-red); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">1</span>
+                        <span style="font-size: 18px; font-weight: 600;">host_listings_count</span>
+                        <span style="font-size: 11px; color: var(--gray-500); margin-left: auto;">NEW</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="width: 28px; height: 28px; background: var(--gray-700); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">2</span>
+                        <span style="font-size: 18px; font-weight: 600;">review_scores_rating</span>
+                        <span style="font-size: 11px; color: #00A699; margin-left: auto;">✓</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="width: 28px; height: 28px; background: var(--gray-700); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">3</span>
+                        <span style="font-size: 18px; font-weight: 600;">number_of_reviews_ltm</span>
+                        <span style="font-size: 11px; color: #00A699; margin-left: auto;">✓</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="width: 28px; height: 28px; background: var(--gray-700); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">4</span>
+                        <span style="font-size: 18px; font-weight: 600;">host_response_rate</span>
+                        <span style="font-size: 11px; color: #00A699; margin-left: auto;">✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Insight: Single Line -->
+        <div style="margin-top: 40px; display: flex; align-items: center; gap: 20px;">
+            <div style="width: 4px; height: 48px; background: var(--airbnb-red);"></div>
+            <div>
+                <div style="font-size: 24px; font-weight: 700;">ML이 발견한 #1 요인: <em>호스팅 규모</em></div>
+                <div style="font-size: 14px; color: var(--gray-500); margin-top: 4px;">공식 기준에 없는 패턴 — 데이터에서 스스로 학습</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 10: Disagreement Cases (Swiss Style Redesign) -->
+<div class="slide-wrapper" id="slide-8">
+    <section class="slide">
+        <span class="slide-number">10 / 11</span>
+        
+        <!-- Header with Big Stats -->
+        <div style="display: grid; grid-template-columns: 1fr auto; align-items: end; margin-bottom: 40px;">
+            <div>
+                <p class="label">케이스 분석</p>
+                <h2 style="font-size: 56px; line-height: 1.0;">판단이<br><span class="highlight">다를 때</span></h2>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 72px; font-weight: 800; line-height: 1; color: var(--airbnb-red);">19%</div>
+                <div style="font-size: 14px; color: var(--gray-500);">130건 중 25건 불일치</div>
+            </div>
+        </div>
+
+        <!-- Case Cards with Clear Official vs ML Labels -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            
+            <!-- Mystery Case: Official ✓ but ML ✕ -->
+            <div style="background: var(--black); color: var(--white); padding: 32px; position: relative;">
+                <div style="position: absolute; top: 0; right: 0; background: var(--airbnb-red); padding: 8px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;">미스터리</div>
+                <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 16px;">Case #16</div>
+                
+                <!-- Metrics Row -->
+                <div style="display: flex; gap: 24px; margin-bottom: 24px;">
+                    <div><div style="font-size: 11px; color: var(--gray-500);">응답률</div><div style="font-size: 28px; font-weight: 800;">100%</div></div>
+                    <div><div style="font-size: 11px; color: var(--gray-500);">평점</div><div style="font-size: 28px; font-weight: 800;">5.0</div></div>
+                    <div><div style="font-size: 11px; color: var(--gray-500);">리뷰</div><div style="font-size: 28px; font-weight: 800;">10</div></div>
+                </div>
+                
+                <!-- Verdict Row -->
+                <div style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gray-700);">
+                    <div style="flex: 1; padding: 12px; background: rgba(0,166,153,0.2); text-align: center;">
+                        <div style="font-size: 10px; color: var(--gray-500); margin-bottom: 4px;">공식 기준</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #00A699;">✓ 통과</div>
+                    </div>
+                    <div style="flex: 1; padding: 12px; background: rgba(255,56,92,0.2); text-align: center;">
+                        <div style="font-size: 10px; color: var(--gray-500); margin-bottom: 4px;">ML 모델</div>
+                        <div style="font-size: 18px; font-weight: 800; color: var(--airbnb-red);">✕ 탈락</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expected Case: Low Reviews -->
+            <div style="background: var(--gray-100); padding: 32px; position: relative;">
+                <div style="position: absolute; top: 0; right: 0; background: var(--gray-300); padding: 8px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--gray-700);">예상됨</div>
+                <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 16px;">Case #5</div>
+                
+                <!-- Metrics Row -->
+                <div style="display: flex; gap: 24px; margin-bottom: 24px;">
+                    <div><div style="font-size: 11px; color: var(--gray-500);">응답률</div><div style="font-size: 28px; font-weight: 800;">100%</div></div>
+                    <div><div style="font-size: 11px; color: var(--gray-500);">평점</div><div style="font-size: 28px; font-weight: 800;">5.0</div></div>
+                    <div><div style="font-size: 11px; color: var(--gray-500);">리뷰</div><div style="font-size: 28px; font-weight: 800; color: var(--airbnb-red);">8</div></div>
+                </div>
+                
+                <!-- Verdict Row -->
+                <div style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gray-300);">
+                    <div style="flex: 1; padding: 12px; background: var(--white); text-align: center;">
+                        <div style="font-size: 10px; color: var(--gray-500); margin-bottom: 4px;">공식 기준</div>
+                        <div style="font-size: 18px; font-weight: 800; color: var(--airbnb-red);">✕ 탈락</div>
+                    </div>
+                    <div style="flex: 1; padding: 12px; background: var(--white); text-align: center;">
+                        <div style="font-size: 10px; color: var(--gray-500); margin-bottom: 4px;">ML 모델</div>
+                        <div style="font-size: 18px; font-weight: 800; color: var(--airbnb-red);">✕ 탈락</div>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: var(--gray-500); margin-top: 12px;">리뷰 10건 미만 — 공식 기준 미달</div>
+            </div>
+        </div>
+
+        <!-- Bottom Insight -->
+        <div style="margin-top: 32px; padding: 28px 32px; background: #fff5f7; border-left: 4px solid var(--airbnb-red);">
+            <div style="font-size: 20px; font-weight: 600; line-height: 1.5;">
+                ML은 <em>서류상 완벽해 보이는</em> 호스트 중에서도 <strong>호스팅 규모</strong>나 <strong>경험 깊이</strong>가 부족한 케이스를 포착합니다.
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Slide 11: Conclusion -->
+<div class="slide-wrapper" id="slide-9">
+    <section class="slide slide-dark">
+        <span class="slide-number" style="color: var(--gray-500);">11 / 11</span>
+        <div>
+            <p class="label" style="color: var(--gray-500);">Conclusion</p>
+            <h2>결론 및 시사점</h2>
+        </div>
+
+        <div class="grid-3" style="margin-top: 36px; gap: 24px;">
+            <div style="padding: 32px; border: 1px solid var(--gray-700);">
+                <div style="font-size: 40px; margin-bottom: 12px;">🎯</div>
+                <h4 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">높은 예측 정확도</h4>
+                <p style="font-size: 14px; color: var(--gray-300); line-height: 1.5;">
+                    Random Forest 모델로<br>
+                    <strong style="color: var(--white); font-size: 24px;">93%</strong> 정확도 달성
+                </p>
+            </div>
+            <div style="padding: 32px; border: 1px solid var(--gray-700);">
+                <div style="font-size: 40px; margin-bottom: 12px;">🔍</div>
+                <h4 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">공식 기준과의 정합성</h4>
+                <p style="font-size: 14px; color: var(--gray-300); line-height: 1.5;">
+                    Airbnb 기준과<br>
+                    <strong style="color: var(--white); font-size: 24px;">80.8%</strong> 일치율
+                </p>
+            </div>
+            <div style="padding: 32px; border: 1px solid var(--gray-700);">
+                <div style="font-size: 40px; margin-bottom: 12px;">💡</div>
+                <h4 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">추가 인사이트</h4>
+                <p style="font-size: 14px; color: var(--gray-300); line-height: 1.5;">
+                    호스팅 규모, 경험 등<br>
+                    <strong style="color: var(--white);">숨겨진 패턴</strong> 발견
+                </p>
+            </div>
+        </div>
+
+        <div style="margin-top: 36px; padding: 32px; background: var(--airbnb-red);">
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">활용 방안</h3>
+            <div class="grid-2" style="gap: 32px;">
+                <div style="font-size: 15px; line-height: 1.7;">
+                    <strong>호스트 코칭</strong><br>
+                    슈퍼호스트 가능성이 높은 호스트를 사전 식별하여 맞춤형 가이드 제공
+                </div>
+                <div style="font-size: 15px; line-height: 1.7;">
+                    <strong>플랫폼 운영</strong><br>
+                    예측 모델을 활용한 호스트 품질 관리 및 마케팅 타겟팅 최적화
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer" style="color: var(--gray-500);">
+            <span>2020120083 손영진</span>
+            <span>Thank You</span>
+        </div>
+    </section>
+</div>
+
+<script>
+    let currentSlide = 0;
+    let isAnimating = false;
+    const slides = document.querySelectorAll('.slide-wrapper');
+    const dots = document.querySelectorAll('.nav-dot');
+    const totalSlides = slides.length;
+
+    // Initialize first slide
+    slides[0].classList.add('active');
+
+    function goToSlide(index) {
+        if (index < 0 || index >= totalSlides || isAnimating || index === currentSlide) return;
+        isAnimating = true;
+        
+        slides[currentSlide].classList.remove('active');
+        slides[index].classList.add('active');
+        currentSlide = index;
+        
+        dots.forEach((d, j) => d.classList.toggle('active', index === j));
+        
+        setTimeout(() => { isAnimating = false; }, 500);
+    }
+
+    function scrollToSlide(i) { goToSlide(i); }
+
+    // Wheel event
+    let lastWheel = 0;
+    document.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const now = Date.now();
+        if (now - lastWheel < 600) return;
+        lastWheel = now;
+        if (e.deltaY > 0) goToSlide(currentSlide + 1);
+        else goToSlide(currentSlide - 1);
+    }, { passive: false });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(e.key)) {
+            e.preventDefault();
+            goToSlide(currentSlide + 1);
+        } else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) {
+            e.preventDefault();
+            goToSlide(currentSlide - 1);
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            goToSlide(0);
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+        }
+    });
+
+    // Touch support
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; });
+    document.addEventListener('touchend', (e) => {
+        const diff = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) goToSlide(currentSlide + 1);
+            else goToSlide(currentSlide - 1);
+        }
+    });
+</script>
+
+</body>
+</html>
+
+
